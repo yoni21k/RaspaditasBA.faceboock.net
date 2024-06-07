@@ -5,6 +5,31 @@ const prizeImages = [
     'billete4.jpg', 'billete5.jpg', 'suerte_la_proxima.jpg'
 ];
 
+const maxInvalidAttempts = 10;
+let invalidAttempts = 0;
+let gameLocked = localStorage.getItem('gameLocked') === 'true';
+
+function incrementInvalidAttempts() {
+    invalidAttempts++;
+    if (invalidAttempts >= maxInvalidAttempts) {
+        gameLocked = true;
+        localStorage.setItem('gameLocked', 'true');
+        alert('El juego ha sido bloqueado debido a múltiples intentos de códigos inválidos.');
+    }
+}
+
+function unlockGame(password) {
+    const unlockPassword = 'callefalsa123';
+    if (password === unlockPassword) {
+        gameLocked = false;
+        invalidAttempts = 0;
+        localStorage.setItem('gameLocked', 'false');
+        alert('El juego ha sido desbloqueado.');
+    } else {
+        alert('Contraseña incorrecta. Por favor, inténtalo de nuevo.');
+    }
+}
+
 function getRandomInt(min, max) {
     return Math.floor(Math.random() * (max - min)) + min;
 }
@@ -125,6 +150,17 @@ function addMoreCards() {
 }
 
 function validateCode(codigo) {
+    if (gameLocked) {
+        const password = prompt('El juego está bloqueado. Por favor, introduce la contraseña para desbloquearlo:');
+        if (password === 'tu_contraseña_secreta') {
+            gameLocked = false;
+            invalidAttempts = 0;
+            localStorage.setItem('gameLocked', 'false');
+        } else {
+            return { valid: false, message: 'Juego bloqueado' };
+        }
+    }
+
     const usedCodes = JSON.parse(localStorage.getItem('usedCodes')) || [];
     const currentDate = new Date();
     const formattedDate = currentDate.toLocaleString();
@@ -136,8 +172,9 @@ function validateCode(codigo) {
     if (codigosValidos.includes(codigo)) {
         usedCodes.push(codigo);
         localStorage.setItem('usedCodes', JSON.stringify(usedCodes));
-        return { valid: true, message: 'Código Valido. Generando nuevas raspaditas.' };
+        return { valid: true, message: 'Código Válido. Generando nuevas raspaditas.' };
     } else {
+        incrementInvalidAttempts();
         return { valid: false, message: 'Código inválido.' };
     }
 }
@@ -157,4 +194,6 @@ document.getElementById('validar-codigo').addEventListener('click', () => {
     }
 });
 
-
+if (gameLocked) {
+    alert('El juego está bloqueado. Por favor, introduce la contraseña para desbloquearlo.');
+}
