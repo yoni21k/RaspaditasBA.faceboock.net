@@ -1,5 +1,5 @@
 const codigosValidos = [
-    "1098s<i#9012(LU",
+    "1098s<i#9012(LU6",
 "2345_N@d0123Wa",
 "7654G^tc2109",
 "34567!X+0123Pf",
